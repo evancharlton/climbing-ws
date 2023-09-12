@@ -705,3 +705,22 @@ CREATE TABLE `users` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2023-07-28 10:02:08
+
+DROP FUNCTION IF EXISTS is_readable;
+DELIMITER //
+CREATE FUNCTION is_readable(admin_read INT, superadmin_read INT, locked_admin INT, locked_superadmin INT, trash INT)
+RETURNS INT DETERMINISTIC
+SQL SECURITY INVOKER
+BEGIN
+  DECLARE readable INT;
+  IF locked_admin > 0 AND locked_superadmin > 0 THEN
+    SET readable = 1;
+  ELSEIF superadmin_read = 1 THEN
+    SET readable = 1;
+  ELSEIF locked_superadmin = 1 THEN
+    SET readable = 0;
+  END IF;
+  RETURN readable;
+END
+//
+DELIMITER ;
